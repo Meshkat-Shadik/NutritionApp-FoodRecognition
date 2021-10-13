@@ -1,6 +1,11 @@
 /node_modules
-index.html
+
 public/predict.js
+
 public/image_classes.js
+
 public/imagenet_classes.js
+
 public/tfjsModels/inception
+
+index.html
