@@ -1,0 +1,32 @@
+{
+    "name": "foodrecognitionbackend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon index.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@tensorflow-models/mobilenet": "^2.1.0",
+        "@tensorflow/tfjs-node": "^3.9.0",
+        "body-parser": "^1.19.0",
+        "canvas": "^2.8.0",
+        "cookie-parser": "^1.4.5",
+        "cors": "^2.8.5",
+        "ejs": "^3.1.6",
+        "express": "^4.17.1",
+        "fs-extra": "^10.0.0",
+        "get-image-data": "^5.0.0",
+        "image-js": "^0.33.0",
+        "jimp": "^0.16.1",
+        "multer": "^1.4.3",
+        "nodemon": "^2.0.13",
+        "resize-optimize-images": "^1.1.2",
+        "sharp": "^0.29.1",
+        "uuid": "^8.3.2"
+    }
+}
