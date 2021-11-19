@@ -7,7 +7,7 @@ const controller = require("./controllers/pred");
 const tf = require("@tensorflow/tfjs-node");
 const app = express();
 const corsOptions = {
-    origin: "*",
+  origin: "*",
 };
 app.use(express.json());
 app.use(cors(corsOptions));
@@ -20,39 +20,39 @@ console.log(path.join(__dirname, "public"));
 app.use("/", express.static(path.join(__dirname, "public")));
 
 const storage = diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, UPLOADS_FOLDER);
-    },
-    filename: (req, file, cb) => {
-        // const fileExt = path.extname(file.originalname);
-        // const fileName =
-        //     file.originalname
-        //     .replace(fileExt, "")
-        //     .toLowerCase()
-        //     .split(" ")
-        //     .join("-") +
-        //     "-" +
-        //     Date.now();
+  destination: (req, file, cb) => {
+    cb(null, UPLOADS_FOLDER);
+  },
+  filename: (req, file, cb) => {
+    // const fileExt = path.extname(file.originalname);
+    // const fileName =
+    //     file.originalname
+    //     .replace(fileExt, "")
+    //     .toLowerCase()
+    //     .split(" ")
+    //     .join("-") +
+    //     "-" +
+    //     Date.now();
 
-        cb(null, "test-image.jpg");
-    },
+    cb(null, "test-image.jpg");
+  },
 });
 var upload = multer({
-    storage: storage,
-    dest: UPLOADS_FOLDER,
-    fileFilter: (req, file, cb) => {
-        console.log(file.mimetype);
+  storage: storage,
+  dest: UPLOADS_FOLDER,
+  fileFilter: (req, file, cb) => {
+    console.log(file.mimetype);
 
-        if (
-            file.mimetype == "image/png" ||
-            file.mimetype == "image/jpg" ||
-            file.mimetype == "image/jpeg"
-        ) {
-            cb(null, true);
-        } else {
-            cb(new Error("Only .jpg, .png or .jpeg format allowed!"));
-        }
-    },
+    if (
+      file.mimetype == "image/png" ||
+      file.mimetype == "image/jpg" ||
+      file.mimetype == "image/jpeg"
+    ) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only .jpg, .png or .jpeg format allowed!"));
+    }
+  },
 });
 
 // app.post("/", upload.single("avatar"), (req, res) => {
@@ -60,98 +60,146 @@ var upload = multer({
 // });
 
 const IMAGE_CLASS = {
-    0: "apple",
-    1: "banana",
-    2: "beetroot",
-    3: "bell pepper",
-    4: "cabbage",
-    5: "capsicum",
-    6: "carrot",
-    7: "cauliflower",
-    8: "chilli pepper",
-    9: "corn",
-    10: "cucumber",
-    11: "eggplant",
-    12: "garlic",
-    13: "ginger",
-    14: "grapes",
-    15: "jalepeno",
-    16: "kiwi",
-    17: "lemon",
-    18: "lettuce",
-    19: "mango",
-    20: "onion",
-    21: "orange",
-    22: "paprika",
-    23: "pear",
-    24: "peas",
-    25: "pineapple",
-    26: "pomegranate",
-    27: "potato",
-    28: "raddish",
-    29: "soy beans",
-    30: "spinach",
-    31: "sweetcorn",
-    32: "sweetpotato",
-    33: "tomato",
-    34: "turnip",
-    35: "watermelon",
+  0: "Apple",
+  1: "Banana",
+  2: "Broccoli",
+  3: "Carrots",
+  4: "Cauliflower",
+  5: "Chili",
+  6: "Coconut",
+  7: "Cucumber",
+  8: "Custard apple",
+  9: "Dates",
+  10: "Dragon",
+  11: "Egg",
+  12: "Garlic",
+  13: "Grape",
+  14: "Green Lemon",
+  15: "Jackfruit",
+  16: "Kiwi",
+  17: "Mango",
+  18: "Okra",
+  19: "Onion",
+  20: "Orange",
+  21: "Papaya",
+  22: "Peanut",
+  23: "Pineapple",
+  24: "Pomegranate",
+  25: "Star Fruit",
+  26: "Strawberry",
+  27: "Sweet Potato",
+  28: "Watermelon",
+  29: "White Mushroom",
 };
 
 let model;
-(async function() {
-    model = await tf.loadLayersModel(
-        //   "file://public/uploads/tfjsModels/mobilenet/model.json"
-        "file://./public/tfjsModels/mobilenet/model.json"
-    );
+(async function () {
+  model = await tf.loadLayersModel(
+    //   "file://public/uploads/tfjsModels/mobilenet/model.json"
+    "file://./public/tfjsModels/mobilenet/model.json"
+  );
 })();
 
-app.post("/test", upload.single("image"), async(req, res) => {
-    // await controller.resize();
-    var input = await controller.preprocess();
-    input.print();
-    input = input.div(tf.scalar(255)).resizeNearestNeighbor([224, 224]);
+app.post("/v1", upload.single("image"), async (req, res) => {
+  // await controller.resize();
+  var input = await controller.preprocess();
+  input.print();
+  input = input.div(tf.scalar(255)).resizeNearestNeighbor([224, 224]);
 
-    console.log("After dividing 255\n");
-    input.print();
-    let prediction = await model.predict(input);
-    console.log("After Prediction\n");
-    prediction.print();
-    let resl = await prediction.array();
-    console.log(resl);
-    let tempArr = [];
-    resl.map((e) => tempArr.push(e));
-    let index = tempArr[0].findIndex((dt) => dt != 0);
-    //console.log(tempArr[0][1]);
-    console.log(index);
-    console.log(IMAGE_CLASS[index]);
-    //let temp = await prediction.argMax((axis = -1));
-    //console.log("After Argmax\n");
-    //console.log(temp);
-    // let x = temp.map((e) => console.log(e));
-    //let ans = await temp.array();
-    // console.log(temp);
-    //temp.print();
-    //  console.log(x);
-    res.status(200).json({
-        data: IMAGE_CLASS[index],
-    });
+  console.log("After dividing 255\n");
+  input.print();
+  let prediction = await model.predict(input);
+  console.log("After Prediction\n");
+  prediction.print();
+  let resl = await prediction.array();
+
+  console.log("this is resl" + resl);
+  let tempArr = [];
+  resl.map((e) => tempArr.push(e));
+  console.log(resl[0][1]);
+
+  let firstMax = 0;
+  let firstPos = 0;
+
+  console.log(typeof resl);
+  for (let i = 0; i < 30; i++) {
+    if (resl[0][i] > firstMax) {
+      firstMax = resl[0][i];
+      firstPos = i;
+    }
+    // console.log(resl[0][i]);
+  }
+  console.log("Position and Max");
+  console.log(firstPos, firstMax);
+
+  let secondMax = 0;
+  let secondPos = firstPos;
+
+  for (let i = 0; i < 30; i++) {
+    if (resl[0][i] > secondMax) {
+      if (resl[0][i] == firstMax) {
+        continue;
+      }
+      secondMax = resl[0][i];
+      secondPos = i;
+    }
+    // console.log(resl[0][i]);
+  }
+  console.log("Position and Max");
+  console.log(secondPos, secondMax);
+
+  let thirdMax = 0;
+  let thirdPos = secondPos;
+
+  for (let i = 0; i < 30; i++) {
+    if (resl[0][i] > thirdMax) {
+      if (resl[0][i] == firstMax || resl[0][i] == secondMax) {
+        continue;
+      }
+      thirdMax = resl[0][i];
+      thirdPos = i;
+    }
+    // console.log(resl[0][i]);
+  }
+  console.log("Position and Max");
+  console.log(thirdPos, thirdMax);
+
+  //let index = tempArr[0].findIndex((dt) => dt != 0);
+  //console.log(tempArr[0][1]);
+  // console.log(index);
+  // console.log(IMAGE_CLASS[index]);
+  // let temp = await prediction.argMax((axis = -1));
+  // console.log("After Argmax\n");
+  // temp.print();
+  // let x = temp.map((e) => console.log(e));
+  //let ans = await temp.array();
+  // console.log(temp);
+  //temp.print();
+  //  console.log(x);
+  res.status(200).json({
+    //data: IMAGE_CLASS[index],
+    data: [
+      { name: IMAGE_CLASS[firstPos], probability: firstMax * 100 },
+      { name: IMAGE_CLASS[secondPos], probability: secondMax * 100 },
+      { name: IMAGE_CLASS[thirdPos], probability: thirdMax * 100 },
+    ],
+  });
 });
 
 app.use(errorHandler);
 //default error handler
 function errorHandler(err, req, res, next) {
-    if (res.headersSent) {
-        return next(err);
-    }
-    if (err instanceof multer.MulterError) {
-        res.status(500).json({ error: err });
-    }
-    res.status(500).json({ error: err, message: err.message });
+  if (res.headersSent) {
+    return next(err);
+  }
+  if (err instanceof multer.MulterError) {
+    res.status(500).json({ error: err });
+  }
+  res.status(500).json({ error: err, message: err.message });
 }
 
 app.listen(port, () => {
-    console.log("App listening at port " + port);
+  console.log("App listening at port " + port);
 });
 
 /*
