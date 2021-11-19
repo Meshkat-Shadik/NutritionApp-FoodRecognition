@@ -16,7 +16,7 @@ _Update : 19 November, 2021_
 
 - Purpose?
 
-Well, I feel flutter is an art. Then again, I want to made an app for suggesting nutrition app, which can take a fruit/vegetables image and showing it's nutritions.
+Well, I feel flutter is an art. Then again, I want to make an app for suggesting nutrition values, which can take a fruit/vegetables image and showing it's nutritions.
 
 - What the hell is this section (NutritionApp-FoodRecoginition) doing?
 
